@@ -10,13 +10,11 @@ st.set_page_config(
 st.title("📄 AI Resume Analyzer")
 st.write("Upload your resume and compare it with a job description.")
 
-# Upload resume
 uploaded_file = st.file_uploader(
     "Upload your resume",
     type=["pdf"]
 )
 
-# Job description
 job_description = st.text_area(
     "Paste the job description here",
     height=200
@@ -44,11 +42,9 @@ if uploaded_file is not None:
 
     if job_description:
 
-        # Convert everything to lowercase
         resume_lower = resume_text.lower()
         job_lower = job_description.lower()
 
-        # Skills to check
         skills = [
             "python",
             "sql",
@@ -76,14 +72,14 @@ if uploaded_file is not None:
             if re.search(r"\b" + re.escape(skill) + r"\b", resume_lower):
                 resume_skills.append(skill)
 
-            elif re.search(r"\b" + re.escape(skill) + r"\b", job_lower):
-                missing_skills.append(skill)
-
-        # Calculate match
         required_skills = [
             skill for skill in skills
             if re.search(r"\b" + re.escape(skill) + r"\b", job_lower)
         ]
+
+        for skill in required_skills:
+            if skill not in resume_skills:
+                missing_skills.append(skill)
 
         if required_skills:
 
@@ -121,8 +117,7 @@ if uploaded_file is not None:
         else:
             st.write("No major missing skills detected.")
 
-        st.success("Analysis completed!")
-                st.write("### 💡 Recommendations")
+        st.write("### 💡 Recommendations")
 
         recommendations = []
 
@@ -154,3 +149,5 @@ if uploaded_file is not None:
                 "Your resume contains several important skills "
                 "for this job. Keep building your portfolio!"
             )
+
+        st.success("Analysis completed!")
