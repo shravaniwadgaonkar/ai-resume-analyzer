@@ -30,124 +30,141 @@ if uploaded_file is not None:
         text = page.extract_text()
 
         if text:
-            resume_text += text
+            resume_text += text + "\n"
 
-    st.subheader("📋 Resume Preview")
+    # Check whether text was extracted
+    if not resume_text.strip():
 
-    st.text_area(
-        "Extracted text",
-        resume_text,
-        height=300
-    )
+        st.error(
+            "⚠️ No selectable text was found in this PDF. "
+            "This may be a scanned/image-based resume."
+        )
 
-    if job_description:
+        st.info(
+            "Please upload a PDF created from selectable text, "
+            "or use an OCR-enabled version of your resume."
+        )
 
-        resume_lower = resume_text.lower()
-        job_lower = job_description.lower()
+    else:
 
-        skills = [
-            "python",
-            "sql",
-            "machine learning",
-            "deep learning",
-            "pandas",
-            "numpy",
-            "scikit-learn",
-            "tensorflow",
-            "pytorch",
-            "data analysis",
-            "statistics",
-            "git",
-            "github",
-            "streamlit",
-            "aws",
-            "docker"
-        ]
+        st.subheader("📋 Resume Preview")
 
-        resume_skills = []
-        missing_skills = []
+        st.text_area(
+            "Extracted text",
+            resume_text,
+            height=300
+        )
 
-        for skill in skills:
+        if job_description:
 
-            if re.search(r"\b" + re.escape(skill) + r"\b", resume_lower):
-                resume_skills.append(skill)
+            resume_lower = resume_text.lower()
+            job_lower = job_description.lower()
 
-        required_skills = [
-            skill for skill in skills
-            if re.search(r"\b" + re.escape(skill) + r"\b", job_lower)
-        ]
+            skills = [
+                "python",
+                "sql",
+                "machine learning",
+                "deep learning",
+                "pandas",
+                "numpy",
+                "scikit-learn",
+                "tensorflow",
+                "pytorch",
+                "data analysis",
+                "statistics",
+                "git",
+                "github",
+                "streamlit",
+                "aws",
+                "docker",
+                "artificial intelligence",
+                "natural language processing"
+            ]
 
-        for skill in required_skills:
-            if skill not in resume_skills:
-                missing_skills.append(skill)
+            resume_skills = []
 
-        if required_skills:
+            for skill in skills:
+                if re.search(
+                    r"\b" + re.escape(skill) + r"\b",
+                    resume_lower
+                ):
+                    resume_skills.append(skill)
+
+            required_skills = []
+
+            for skill in skills:
+                if re.search(
+                    r"\b" + re.escape(skill) + r"\b",
+                    job_lower
+                ):
+                    required_skills.append(skill)
+
+            missing_skills = [
+                skill
+                for skill in required_skills
+                if skill not in resume_skills
+            ]
 
             matched_skills = [
-                skill for skill in required_skills
+                skill
+                for skill in required_skills
                 if skill in resume_skills
             ]
 
-            score = (
-                len(matched_skills)
-                / len(required_skills)
-            ) * 100
+            if required_skills:
+                score = (
+                    len(matched_skills)
+                    / len(required_skills)
+                ) * 100
+            else:
+                score = 0
 
-        else:
-            score = 0
+            st.subheader("📊 Resume Analysis")
 
-        st.subheader("📊 Resume Analysis")
-
-        st.metric(
-            "Job Match Score",
-            f"{score:.1f}%"
-        )
-
-        st.write("### ✅ Skills Found")
-
-        if resume_skills:
-            st.write(", ".join(resume_skills))
-        else:
-            st.write("No matching skills found.")
-
-        st.write("### ⚠️ Skills You May Need")
-
-        if missing_skills:
-            st.write(", ".join(missing_skills))
-        else:
-            st.write("No major missing skills detected.")
-
-        st.write("### 💡 Recommendations")
-
-        recommendations = []
-
-        if "python" not in resume_lower:
-            recommendations.append(
-                "Add Python projects or experience to your resume."
+            st.metric(
+                "Job Match Score",
+                f"{score:.1f}%"
             )
 
-        if "sql" not in resume_lower:
-            recommendations.append(
-                "Consider adding SQL skills and a SQL-based project."
-            )
+            st.write("### ✅ Skills Found")
 
-        if "machine learning" not in resume_lower:
-            recommendations.append(
-                "Add a machine learning project if you have one."
-            )
+            if matched_skills:
+                st.write(", ".join(matched_skills))
+            else:
+                st.write("No matching skills found.")
 
-        if "github" not in resume_lower:
-            recommendations.append(
-                "Add your GitHub profile to showcase your projects."
-            )
+            st.write("### ⚠️ Skills You May Need")
 
-        if recommendations:
-            for recommendation in recommendations:
-                st.write("•", recommendation)
-        else:
-            st.write(
-                "Your resume contains several important skills "
-                "for this job. Keep building your portfolio!"
-            )
+            if missing_skills:
+                st.write(", ".join(missing_skills))
+            else:
+                st.write("No major missing skills detected.")
 
-        st.success("Analysis completed!")
+            st.write("### 💡 Recommendations")
+
+            if "python" in missing_skills:
+                st.write(
+                    "• Add Python projects or experience."
+                )
+
+            if "sql" in missing_skills:
+                st.write(
+                    "• Add SQL skills or a SQL-based project."
+                )
+
+            if "machine learning" in missing_skills:
+                st.write(
+                    "• Add a machine learning project."
+                )
+
+            if "github" in missing_skills:
+                st.write(
+                    "• Add your GitHub profile."
+                )
+
+            if not missing_skills:
+                st.success(
+                    "Your resume matches the detected job requirements well!"
+                )
+
+            st.success("Analysis completed!")
