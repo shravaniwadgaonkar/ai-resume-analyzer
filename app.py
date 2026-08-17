@@ -122,3 +122,35 @@ if uploaded_file is not None:
             st.write("No major missing skills detected.")
 
         st.success("Analysis completed!")
+                st.write("### 💡 Recommendations")
+
+        recommendations = []
+
+        if "python" not in resume_lower:
+            recommendations.append(
+                "Add Python projects or experience to your resume."
+            )
+
+        if "sql" not in resume_lower:
+            recommendations.append(
+                "Consider adding SQL skills and a SQL-based project."
+            )
+
+        if "machine learning" not in resume_lower:
+            recommendations.append(
+                "Add a machine learning project if you have one."
+            )
+
+        if "github" not in resume_lower:
+            recommendations.append(
+                "Add your GitHub profile to showcase your projects."
+            )
+
+        if recommendations:
+            for recommendation in recommendations:
+                st.write("•", recommendation)
+        else:
+            st.write(
+                "Your resume contains several important skills "
+                "for this job. Keep building your portfolio!"
+            )
