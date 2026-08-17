@@ -1,4 +1,5 @@
 import streamlit as st
+from pypdf import PdfReader
 
 st.set_page_config(
     page_title="AI Resume Analyzer",
@@ -6,18 +7,34 @@ st.set_page_config(
 )
 
 st.title("📄 AI Resume Analyzer")
-st.write("Upload your resume and analyze your skills.")
+st.write("Upload your resume and extract the text automatically.")
 
 uploaded_file = st.file_uploader(
     "Upload your resume",
-    type=["pdf", "txt"]
+    type=["pdf"]
 )
 
 if uploaded_file is not None:
+
     st.success("Resume uploaded successfully!")
 
-    st.write("### File Information")
-    st.write("File name:", uploaded_file.name)
-    st.write("File size:", uploaded_file.size, "bytes")
+    reader = PdfReader(uploaded_file)
 
-    st.info("Resume analysis will be added next.")
+    resume_text = ""
+
+    for page in reader.pages:
+        text = page.extract_text()
+
+        if text:
+            resume_text += text
+
+    st.subheader("📋 Extracted Resume Text")
+
+    if resume_text:
+        st.text_area(
+            "Resume content",
+            resume_text,
+            height=400
+        )
+    else:
+        st.warning("Could not extract text from this PDF.")
